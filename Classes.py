@@ -1,37 +1,41 @@
 class Stop:
-    def __init__(self,stopId, messageId,stopTime,onboard,boards,alights):
+    def __init__(self, stopId, messageId, stopTime, onboard, boards, alights, stopName,stopseq):
         self.stopId=stopId
-        self.stopTime=stopTime
-        self.messageId=messageId
+        self.stopTime=stopTime      #vmhtime
+        self.messageId=messageId   #message number
         self.onboard=onboard
         self.boards=boards
         self.alights=alights
+        self.stopName=stopName
+        self.stopseq=stopseq
 
 class Segment:
-    def __init__(self,iStopNumber,tStopNumber,numberBoardsIStop,numberAlightsTStop,timeIStop,timeTStop,bus):
-        self.segmentID=(iStopNumber,tStopNumber)
-        self.iStopNumber=iStopNumber
-        self.tStopNumber=tStopNumber
+    def __init__(self, iStop, tStop, numberBoardsIStop, numberAlightsTStop, iStopTime, tStopTime, bus,distance):
+        self.segmentID=(iStop,tStop)
         self.numberBoardsInitialStop=numberBoardsIStop
         self.numberAlightsTerminalStop= numberAlightsTStop
-        self.timeInitialStop=timeIStop
-        self.timeTerminalStop=timeTStop
-        self.miles=0
+        self.tStopTime=iStopTime
+        self.tStopTime=tStopTime
+        self.distance=0
         self.bus=bus
+        self.onboard=0
 
+
+#TODO add support for list of stops in a trip
 class Trip:
-    def __init__(self, tripNumber, bus, stop, stopTime, messageId, onboard, boards, alights):
+    def __init__(self, tripNumber, bus, stop, stopTime, messageId, onboard, boards, alights,route,direction,stopName):
       self.tripNumber=tripNumber
       self.currentBus = bus
-      self.lastStop = Stop(stop, messageId, stopTime, onboard, boards, alights)
-      self.lastStopTime = stopTime
+      self.lastStop = Stop(stop, messageId, stopTime, onboard, boards, alights, stopName, 0)
       self.numberOfStops = 1
       self.tripStartTime = stopTime
       self.tripEndTime = stopTime
+      self.route=route
+      self.direction=direction
+      self.pattern=0
       self.segments=[]
       self.buses=[bus]
-      self.buses.append(bus)
-     # self.stops=[self.lastStop]
+      self.stops=[self.lastStop]
       self.scheduledStopsMade=[]
       self.scheduledStopsMissed=[]
       self.unscheduledStopsMade=[]
@@ -45,19 +49,24 @@ class Trip:
             self.unscheduledStopsMade.append(stop)
 
 #Use this to add a segment for the actual bus trips
-    def addSegment(self, stop,bus):
+    def addSegment(self, stop, bus):
         lastStop=self.lastStop
-        newSegment=Segment(lastStop.stopId,stop.stopId,lastStop.boards,stop.alights,lastStop.stopTime,stop.stopTime,bus)
+        newSegment=Segment(lastStop,stop,lastStop.boards,stop.alights,lastStop.stopTime,stop.stopTime,bus,0)
+        newSegment.onboard=lastStop.onboard +lastStop.boards-lastStop.alights
         self.segments.append(newSegment)
+        self.stops.append(stop)
         self.lastStop=stop
         self.numberOfStops+=1
         self.tripEndTime=stop.stopTime
 
+
 #use this for adding segment to historical day
     def addSeg(self, segment):
         self.segments.append(segment)
+        self.numberOfStop+=1
         self.tripEndTime=segment.timeTerminalStop
-        self.lastStopTime=segment.timeTermialStop
+    #    self.segmentID[1].stoptime
+        #self.lastStopTime=segment.timeTermialStop #what am I doing here again
 
 
     def addBus(self, bus):
