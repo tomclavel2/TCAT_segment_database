@@ -12,9 +12,10 @@ def parseActual(currentDay,results):
     cBoards=results[9]
     cAlights=results[10]
     cStopId=results[11]
+    cStopName=results[12]
     if cBlockNumber not in currentDay.getBlockNumbers():
         newBlock=Block(cBlockNumber)
-        newTrip = Trip (cTripNumber, cBus, cStopId, cVMHTime, cMessageTypeId, cOnboard, cBoards, cAlights) #(self, tripNumber, bus, stop, stopTime, messageId, onboard, boards, alights
+        newTrip = Trip (cTripNumber, cBus, cStopId, cVMHTime, cMessageTypeId, cOnboard, cBoards, cAlights,cRoute, cDir,cStopName) #tripNumber, bus, stop, stopTime, messageId, onboard, boards, alights,route,direction,stopName
         newBlock.addTrip(newTrip)
         currentDay.addBlock(newBlock)
         currentDay.addBus(cBus)
@@ -22,7 +23,7 @@ def parseActual(currentDay,results):
     else:
         currentBlock=currentDay.getBlock(cBlockNumber)
         if cTripNumber not in currentBlock.getTripNumbers():
-            newTrip = Trip(cTripNumber, cBus, cStopId, cVMHTime, cMessageTypeId, cOnboard, cBoards, cAlights)
+            newTrip =Trip (cTripNumber, cBus, cStopId, cVMHTime, cMessageTypeId, cOnboard, cBoards, cAlights,cRoute, cDir,cStopName)
             currentBlock.addTrip(newTrip)
             currentDay.addBus(cBus)
             return currentDay
@@ -34,14 +35,14 @@ def parseActual(currentDay,results):
                 if cStopId == currentTrip.lastStop.stopId:   #If i see the same stop id two times in a row should i disregard the second one
                     return currentDay
                 else:
-                    currentStop=Stop(cStopId,cMessageTypeId,cVMHTime,cOnboard,cBoards,cAlights,)#Stop(stop, messageId, stopTime, onboard, boards, alights)
+                    currentStop=Stop(cStopId,cMessageTypeId,cVMHTime,cOnboard,cBoards,cAlights,cStopName,0)#Stop(self, stopId, messageId, stopTime, onboard, boards, alights, stopName,stopseq
                     currentTrip.addSegment(currentStop,cBus)
                     return currentDay
             else:
                 if cStopId == currentTrip.lastStop.stopId:
                     return currentDay
                 else:
-                    currentStop=Stop(cStopId,cMessageTypeId,cVMHTime,cOnboard,cBoards,cAlights)#Stop(stop, messageId, stopTime, onboard, boards, alights)
+                    currentStop=Stop(cStopId,cMessageTypeId,cVMHTime,cOnboard,cBoards,cAlights,cStopName,0)#Stop(stop, messageId, stopTime, onboard, boards, alights)
                     currentTrip.addSegment(currentStop,cBus)
                     return currentDay
 
@@ -53,7 +54,7 @@ def display(currentDay):
         for t in b.trips:
             print('trip ' + str(t.tripNumber))
             for s in t.segments:
-                print(s.segmentID,  end=' ; ')
+                print(str(s.segmentID[0])+str(s.segmentID[1]),  end=' ; ')
 
 
 def parseHistorical(currentDay,results):
