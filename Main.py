@@ -25,7 +25,7 @@ selectHistoricalInformation = ( " SELECT service_day,trip_seq, route, trip, dire
                                 " ORDER BY trip_seq asc")
 
 
-selectActualInformation = ( " SELECT  Message_Type_Id, service_date, block, route, trip, dir, vmh_time, bus, Onboard, boards, alights, Stop_Id "  # what other columns
+selectActualInformation = ( " SELECT  Message_Type_Id, service_date, block, route, trip, dir, vmh_time, bus, Onboard, boards, alights, Stop_Id,Internet_Name "  # what other columns
                                 " FROM dbo.vActual_History"
                                 " WHERE service_date = '2017-01-21'"
                                 " ORDER BY vmh_time asc")
@@ -60,13 +60,24 @@ for b in currentActualDay.blocks:
             day=currentActualDay.date
             bus=s.bus
             blockNumber=b.blockNumber
+            route=t.route
             tripNumber=t.tripNumber
-            iStopNumber=s.iStopNumber
-            tStopNumber=s.tStopNumber
+            direction=t.direction
+            iStopNumber=s.segmentID[0].stopId
+            iStopName=s.segmentID[0].stopName
+            iStopType=s.segmentID[0].messageId
+            tStopNumber=s.segmentID[0].stopId
+            tStopName=s.segmentID[1].stopName
+            tStopType=s.segmentID[1].messageId
             numberboards=s.numberBoardsInitialStop
             numberalights=s.numberAlightsTerminalStop
-            cursor.execute(" INSERT INTO dbo.Segments (ServiceDate, Bus, Block, Route, Trip, Pattern, Direction, iStopID, iStopName, tStopID,tStopName, Boards, Alights,StopSeq)"
-            " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", day, bus, blockNumber,0, tripNumber,0,'abc', iStopNumber,'temp', tStopNumber,'temp', numberboards, numberalights,0  )
+            onboard=s.onboard
+            stopseq=0
+            iStopTime=s.segmentID[0].stopTime
+            tStopTime=s.segmentID[0].stopTime
+            segDist=s.distance
+            cursor.execute(" INSERT INTO dbo.Segments (ServiceDate, Bus, Block, Route, Trip, Pattern, Direction, iStopID, iStopName,iStopType, tStopID,tStopName, tStopType, Boards, Alights,Onboard,StopSeq,StartTime,EndTime,SegmentFeet)"
+            " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", day, bus, blockNumber,route, tripNumber,0,direction, iStopNumber,iStopName,iStopType, tStopNumber,tStopName,iStopType, numberboards, numberalights,onboard,stopseq,iStopTime,tStopTime, segDist )
             connection.commit()
 
 connection.close()
