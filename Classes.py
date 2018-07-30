@@ -11,7 +11,7 @@ class Stop:
 
 class Segment:
     def __init__(self, iStop, tStop, numberBoardsIStop, numberAlightsTStop, iStopTime, tStopTime, bus,distance):
-        self.segmentID=(iStop,tStop)
+        self.segmentID=(iStop, tStop)
         self.numberBoardsInitialStop=numberBoardsIStop
         self.numberAlightsTerminalStop= numberAlightsTStop
         self.tStopTime=iStopTime
@@ -63,8 +63,8 @@ class Trip:
 #use this for adding segment to historical day
     def addSeg(self, segment):
         self.segments.append(segment)
-        self.numberOfStop+=1
-        self.tripEndTime=segment.timeTerminalStop
+        self.numberOfStops+=1
+        self.tripEndTime=segment.tStopTime
     #    self.segmentID[1].stoptime
         #self.lastStopTime=segment.timeTermialStop #what am I doing here again
 
@@ -77,9 +77,9 @@ class Trip:
 #need to check if this works right in all cases
     def findStop(self,stop):
         for s in self.segments:
-            if stop == s.iStopNumber:
+            if stop == s.segmentID[0].stopId:
                 return self.segments.index(s)
-            elif  stop == s.tStopNumber:
+            elif  stop == s.segmentID[1].stopId:
                 return self.segments.index(s)
             else:
                 return 0
@@ -99,9 +99,11 @@ class Block:
         self.numberOfBuses+=1
 
     def getTrip(self, tripNumber):
+
         for t in self.trips:
             if t.tripNumber==tripNumber:
                 return t
+        print("Could not find trip")
 
     def getTripNumbers(self):
         list=[]
@@ -126,6 +128,7 @@ class Day:
         for b in self.blocks:
             if blockNumber==b.blockNumber:
                 return b
+        print("Could not find Block")
 
     def getBlockNumbers(self):
         list=[]
